@@ -2,7 +2,9 @@ import { Collapse, Container, Table } from "react-bootstrap";
 import { useListReservationsQuery } from "../../store/apis/reservationApi";
 import Loader from "../../components/Loader";
 import React, { Suspense, useState } from "react";
-import ReservationDetails from "./components/ReservationDetails";
+
+const ReservationDetails = React.lazy(() => import("./components/ReservationDetails"));
+
 
 const HomePage = () => {
   const { data: reservations, error, isLoading } = useListReservationsQuery();
@@ -38,11 +40,9 @@ const HomePage = () => {
                   <Collapse in={open === reservation.reservation_uuid}>
                     <tr>
                       <td colSpan={3}>
-                        {open === reservation.reservation_uuid && (
-                          <Suspense fallback={<Loader />}>
-                            <ReservationDetails reservationUuid={reservation.reservation_uuid} />
-                          </Suspense>
-                        )}
+                        <Suspense fallback={<Loader />}>
+                          <ReservationDetails productCharges={reservation.productCharges} />
+                        </Suspense>
                       </td>
                     </tr>
                   </Collapse>
