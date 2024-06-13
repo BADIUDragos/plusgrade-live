@@ -2,48 +2,19 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const fs = require('fs-extra');
+const cors = require('cors');
 
 const app = express();
 
 app.use(bodyParser.json());
 
-
-const readJsonFile = (filePath) => {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filePath, 'utf8', (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(JSON.parse(data));
-      }
-    });
-  });
+const corsOptions = {
+  origin: 'http://localhost:5173',
+  optionsSuccessStatus: 200,
+  credentials: true,
 };
 
-module.exports = readJsonFile;
-
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PATCH, DELETE, OPTIONS"
-  );
-  next();
-});
-
-
-app.get('/productAssignments', async (req, res, next) => {
-  try {
-    const productAssignments = await fs.readJson(path.join(__dirname, 'product_assignment.json'));
-    res.status(200).json({ productAssignments });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to read product assignment file' });
-  }
-});
+app.use(cors(corsOptions));
 
 app.get('/reservations', async (req, res, next) => {
   try {
@@ -82,14 +53,14 @@ app.get('/reservations', async (req, res, next) => {
 
     const reservationDetailsArray = Object.values(reservationDetails);
 
-    res.status(200).json({ reservationDetails: reservationDetailsArray });
+    res.status(200).json(reservationDetailsArray);
   } catch (err) {
     res.status(500).json({ error: 'Failed to read JSON files' });
   }
 });
 
-app.post('/productCharges', async (req, res, next) => {
-  const { reservation_uuid } = req.body;
+app.get('/productCharges/:uuid', async (req, res, next) => {
+  const { uuid: reservation_uuid } = req.params;
 
   if (!reservation_uuid) {
     return res.status(400).json({ error: 'reservation_uuid is required' });
@@ -112,6 +83,10 @@ app.post('/productCharges', async (req, res, next) => {
     const charges = productCharges.filter(
       (charge) => assignedProductIds.includes(charge.special_product_assignment_id)
     );
+
+    const chargesArray = Object.values(charges);
+
+    res.status(200).json(chargesArray);
 
     res.status(200).json({ charges });
   } catch (err) {

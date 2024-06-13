@@ -1,6 +1,6 @@
 import { Alert, Button, Col, Form, Row } from "react-bootstrap";
 import FormContainer from "../../../../components/FormContainer";
-import { ProductState } from "../../../../store/interfaces/productInterfaces";
+import { ProductState } from "../../../../store/interfaces/productChargeInterfaces";
 import Loader from "../../../../components/Loader";
 import getErrorString from "../../../../store/errorHandling/getErrorString";
 

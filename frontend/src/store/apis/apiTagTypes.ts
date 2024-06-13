@@ -1,1 +1,3 @@
-export const productTag = "Product"
+export const productChargeTag = "ProductCharge"
+
+export const reservationTag = "ReservationTag"
