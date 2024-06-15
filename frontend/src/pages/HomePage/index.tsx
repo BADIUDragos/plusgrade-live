@@ -1,4 +1,12 @@
-import { Col, Collapse, Container, FormControl, InputGroup, Row, Table } from "react-bootstrap";
+import {
+  Col,
+  Collapse,
+  Container,
+  FormControl,
+  InputGroup,
+  Row,
+  Table,
+} from "react-bootstrap";
 import { useListReservationsQuery } from "../../store/apis/reservationApi";
 import Loader from "../../components/Loader";
 import React, { Suspense, useState } from "react";
@@ -31,7 +39,7 @@ const HomePage = () => {
           <h1>Plusgrade</h1>
         </Col>
         <Col className="d-flex justify-content-end">
-          <InputGroup style={{ maxWidth: '300px' }}>
+          <InputGroup style={{ maxWidth: "300px" }}>
             <FormControl
               placeholder="Filter by Reservation UUID"
               value={searchTerm}
@@ -82,13 +90,9 @@ const HomePage = () => {
                     <td colSpan={4} style={{ padding: 0 }}>
                       <Collapse in={open === reservation.reservation_uuid}>
                         <div>
-                          {open === reservation.reservation_uuid && (
-                            <Suspense fallback={<Loader />}>
-                              <ReservationCharges
-                                productCharges={reservation.reservationCharges}
-                              />
-                            </Suspense>
-                          )}
+                          <ReservationCharges
+                            productCharges={reservation.reservationCharges}
+                          />
                         </div>
                       </Collapse>
                     </td>

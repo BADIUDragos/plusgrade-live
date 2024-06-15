@@ -1,7 +1,5 @@
-import { Navbar, Container, Nav } from "react-bootstrap";
+import { Navbar, Container } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import CartMenu from "./CartMenu";
-import UserMenu from "./UserInfo";
 
 interface IHeader {
   className?: string;
