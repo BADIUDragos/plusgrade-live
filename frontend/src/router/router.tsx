@@ -1,4 +1,4 @@
-import { HomePage, LoginPage, Layout, ErrorPage, NotFoundPage } from "../pages"
+import { HomePage, Layout, ErrorPage, NotFoundPage } from "../pages"
 import { createBrowserRouter } from "react-router-dom";
 
 export const routes = [
