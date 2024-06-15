@@ -2,9 +2,8 @@ import { Collapse, Container, Table } from "react-bootstrap";
 import { useListReservationsQuery } from "../../store/apis/reservationApi";
 import Loader from "../../components/Loader";
 import React, { Suspense, useState } from "react";
-
-const ReservationDetails = React.lazy(() => import("./components/ReservationDetails"));
-
+import ReservationCharges from "./components/ReservationCharges";
+import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 
 const HomePage = () => {
   const { data: reservations, error, isLoading } = useListReservationsQuery();
@@ -23,7 +22,15 @@ const HomePage = () => {
         <div style={{ maxHeight: "500px", overflowY: "auto" }}>
           <Table striped bordered hover>
             <thead>
-              <tr style={{ position: "sticky", top: 0, backgroundColor: "white", zIndex: 1 }}>
+              <tr
+                style={{
+                  position: "sticky",
+                  top: 0,
+                  backgroundColor: "white",
+                  zIndex: 1,
+                }}
+              >
+                <th></th>
                 <th>Reservation UUID</th>
                 <th>Number of Active Purchases</th>
                 <th>Sum of Active Charges</th>
@@ -32,20 +39,33 @@ const HomePage = () => {
             <tbody>
               {reservations.map((reservation) => (
                 <React.Fragment key={reservation.reservation_uuid}>
-                  <tr onClick={() => handleRowClick(reservation.reservation_uuid)}>
+                  <tr
+                    onClick={() => handleRowClick(reservation.reservation_uuid)}
+                  >
+                    <td>
+                      {open === reservation.reservation_uuid ? <FaChevronDown /> : <FaChevronRight />}
+                    </td>
                     <td>{reservation.reservation_uuid}</td>
                     <td>{reservation.numberOfActiveCharges}</td>
                     <td>{reservation.sumOfActiveCharges}</td>
                   </tr>
-                  <Collapse in={open === reservation.reservation_uuid}>
-                    <tr>
-                      <td colSpan={3}>
-                        <Suspense fallback={<Loader />}>
-                          <ReservationDetails productCharges={reservation.productCharges} />
-                        </Suspense>
-                      </td>
-                    </tr>
-                  </Collapse>
+                  <tr>
+                    <td colSpan={4} style={{ padding: 0 }}>
+                      <Collapse
+                        in={open === reservation.reservation_uuid}
+                      >
+                        <div>
+                          {open === reservation.reservation_uuid && (
+                            <Suspense fallback={<Loader />}>
+                              <ReservationCharges
+                                productCharges={reservation.reservationCharges}
+                              />
+                            </Suspense>
+                          )}
+                        </div>
+                      </Collapse>
+                    </td>
+                  </tr>
                 </React.Fragment>
               ))}
             </tbody>

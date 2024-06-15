@@ -21,48 +21,52 @@ app.get('/reservations', async (req, res, next) => {
     const productAssignments = await fs.readJson(path.join(__dirname, 'product_assignment.json'));
     const productCharges = await fs.readJson(path.join(__dirname, 'product_charges.json'));
 
-    const reservationDetails = productAssignments.reduce((details, assignment) => {
+    const reservationDetails = {};
+
+    productAssignments.forEach((assignment) => {
       const reservation_uuid = assignment.reservation_uuid;
 
-      if (!details[reservation_uuid]) {
-        details[reservation_uuid] = {
+      if (!reservationDetails[reservation_uuid]) {
+        reservationDetails[reservation_uuid] = {
           reservation_uuid,
           numberOfActiveCharges: 0,
           sumOfActiveCharges: 0,
-          productCharges: [],
+          reservationCharges: [],
         };
       }
 
-      const assignedProductIds = productAssignments
-        .filter((a) => a.reservation_uuid === reservation_uuid)
-        .map((product) => product.id);
-
-      const activeCharges = productCharges.filter(
-        (charge) => assignedProductIds.includes(charge.special_product_assignment_id) && charge.active
+      const productCharge = productCharges.find(
+        (charge) => charge.special_product_assignment_id === assignment.id
       );
 
-      details[reservation_uuid].numberOfActiveCharges += activeCharges.length;
-      details[reservation_uuid].sumOfActiveCharges += activeCharges.reduce((sum, charge) => {
-        if (typeof charge.amount === 'number') {
-          return sum + charge.amount;
-        }
-        return sum;
-      }, 0);
+      const detailedProduct = {
+        special_product_assignment_id: assignment.id,
+        name: assignment.name,
+        active: productCharge ? productCharge.active : null,
+        amount: productCharge ? Math.round((productCharge.amount + Number.EPSILON) * 100) / 100 : null,
+      };
 
-      details[reservation_uuid].productCharges = productCharges.filter(
-        (charge) => assignedProductIds.includes(charge.special_product_assignment_id)
-      );
+      reservationDetails[reservation_uuid].reservationCharges.push(detailedProduct);
 
-      return details;
-    }, {});
+      if (productCharge && productCharge.active) {
+        reservationDetails[reservation_uuid].numberOfActiveCharges += 1;
+        reservationDetails[reservation_uuid].sumOfActiveCharges += productCharge.amount || 0;
+      }
+    });
+
+    for (const reservation of Object.values(reservationDetails)) {
+      reservation.sumOfActiveCharges = Math.round((reservation.sumOfActiveCharges + Number.EPSILON) * 100) / 100;
+    }
 
     const reservationDetailsArray = Object.values(reservationDetails);
 
     res.status(200).json(reservationDetailsArray);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Failed to read JSON files' });
   }
 });
+
 
 app.listen(5000, () => {
   console.log("Server is running on port 5000");
